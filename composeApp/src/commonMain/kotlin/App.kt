@@ -53,20 +53,20 @@ fun App() {
         val listRepository = ListRepository()
         val viewModel = ListViewModel(listRepository)
 
-        val items = viewModel.users.collectAsState()
+        val items = viewModel.repos.collectAsState()
 
         NavHost(navController, startDestination = "list") {
 
             composable("list") {
-                ListScreen(state = items) { user ->
-                    navController.navigate("detail/${user.id}")
+                ListScreen(state = items) { item ->
+                    navController.navigate("detail/${item.id}")
                 }
             }
 
             composable("detail/{id}") {
                 val id = it.arguments?.getString("id") ?: ""
-                val user = items.value.data?.first { it.id == id.toInt() }
-                DetailScreen(user!!) {
+                val item = items.value.data?.first { it.id == id.toInt() }
+                DetailScreen(item!!) {
                     navController.navigateUp()
                 }
             }
@@ -135,7 +135,7 @@ fun ListScreen(
 @Composable
 fun DetailScreen(item: GithubRepo, goBack: () -> Unit) {
 
-    //User Detail
+    // Detail
     Scaffold(
         modifier = Modifier,
         containerColor = MaterialTheme.colorScheme.surface,

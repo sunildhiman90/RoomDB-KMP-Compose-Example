@@ -8,15 +8,15 @@ class ListViewModel(
     private val listRepository: ListRepository
 ) : ViewModel() {
 
-    private val _users = MutableStateFlow(ListUiState())
-    val users = _users.asStateFlow()
+    private val _repos = MutableStateFlow(ListUiState())
+    val repos = _repos.asStateFlow()
 
 
     init {
         viewModelScope.launch {
-            _users.value = ListUiState(isLoading = true)
+            _repos.value = ListUiState(isLoading = true)
             listRepository.getKotlinTopRepos().collect {
-                _users.value = ListUiState(
+                _repos.value = ListUiState(
                     data = it,
                     isLoading = false
                 )
