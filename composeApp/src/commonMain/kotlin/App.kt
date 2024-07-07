@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import appDatabase.AppDatabase
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -46,11 +47,11 @@ import kmp_with_roomdb.composeapp.generated.resources.github_logo
 
 @Composable
 @Preview
-fun App() {
+fun App(db: AppDatabase) {
     MaterialTheme {
         val navController = rememberNavController()
 
-        val listRepository = ListRepository()
+        val listRepository = ListRepository(db.getDao())
         val viewModel = ListViewModel(listRepository)
 
         val items = viewModel.repos.collectAsState()
