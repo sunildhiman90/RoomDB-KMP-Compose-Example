@@ -9,8 +9,8 @@ plugins {
     alias(libs.plugins.compose.compiler)
 
     //Room step2 -> plugins
-    id("androidx.room") version "2.7.0-alpha04"
-    id("com.google.devtools.ksp") version "2.0.0-1.0.21" //ksp for room annotation processing
+    alias(libs.plugins.androidxRoom)
+    alias(libs.plugins.ksp) //ksp for room annotation processing
 }
 
 kotlin {
@@ -20,9 +20,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     jvm("desktop")
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -31,18 +31,22 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+
+            // Required when using NativeSQLiteDriver
+            linkerOpts.add("-lsqlite3")
         }
     }
 
     // Room step6 part1 for adding ksp src directory to use AppDatabase::class.instantiateImpl() in iosMain:
     // Due to https://issuetracker.google.com/u/0/issues/342905180
     sourceSets.commonMain {
-        kotlin.srcDir("build/generated/ksp/metadata")
+        //This is also not needed now in room 2.7.1
+        //kotlin.srcDir("build/generated/ksp")
     }
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -51,6 +55,7 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -60,16 +65,16 @@ kotlin {
 
 
             //after compose multiplatform 1.6.10
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+            implementation(libs.lifecycle.viewmodel.compose)
 
             //Room step1
-            implementation("androidx.room:room-runtime:2.7.0-alpha04")
-            implementation("androidx.sqlite:sqlite-bundled:2.5.0-SNAPSHOT") //for sqlite drivers related
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite.bundled) //for sqlite drivers related
 
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.1") //for v
+            implementation(libs.kotlinx.coroutines.swing) //for v
 
         }
     }
@@ -129,17 +134,27 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
+
 //Room step5  KSP For processing Room annotations , Otherwise we will get Is Room annotation processor correctly configured? error
 dependencies {
 
     // Update: https://issuetracker.google.com/u/0/issues/342905180
-    add("kspCommonMainMetadata", "androidx.room:room-compiler:2.7.0-alpha04")
+    listOf(
+        "kspAndroid",
+        "kspDesktop",
+        "kspIosSimulatorArm64",
+        "kspIosX64",
+        "kspIosArm64"
+    ).forEach {
+        add(it, libs.androidx.room.compiler)
+    }
 
 }
 
 //Room step6 part 2 make all source sets to depend on kspCommonMainKotlinMetadata:  Update: https://issuetracker.google.com/u/0/issues/342905180
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
-    if (name != "kspCommonMainKotlinMetadata" ) {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-}
+//This is not needed now in room 2.7.1
+//tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+//    if (name != "kspCommonMainKotlinMetadata") {
+//        dependsOn("kspCommonMainKotlinMetadata")
+//    }
+//}
