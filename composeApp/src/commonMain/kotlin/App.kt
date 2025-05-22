@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.savedstate.read
 import appDatabase.AppDatabase
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -65,7 +66,7 @@ fun App(db: AppDatabase) {
             }
 
             composable("detail/{id}") {
-                val id = it.arguments?.getString("id") ?: ""
+                val id = it.arguments?.read {  getString("id") } ?: ""
                 val item = items.value.data?.first { it.id == id.toInt() }
                 DetailScreen(item!!) {
                     navController.navigateUp()
