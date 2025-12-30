@@ -7,10 +7,6 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-
-    //Room step2 -> plugins
-    alias(libs.plugins.androidxRoom)
-    alias(libs.plugins.ksp) //ksp for room annotation processing
 }
 
 kotlin {
@@ -31,17 +27,8 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-
-            // Required when using NativeSQLiteDriver
-            linkerOpts.add("-lsqlite3")
+            
         }
-    }
-
-    // Room step6 part1 for adding ksp src directory to use AppDatabase::class.instantiateImpl() in iosMain:
-    // Due to https://issuetracker.google.com/u/0/issues/342905180
-    sourceSets.commonMain {
-        //This is also not needed now in room 2.7.1
-        //kotlin.srcDir("build/generated/ksp")
     }
 
     sourceSets {
@@ -62,14 +49,9 @@ kotlin {
 
             implementation(libs.navigation.compose)
             implementation(libs.coil.compose)
-
-
-            //after compose multiplatform 1.6.10
             implementation(libs.lifecycle.viewmodel.compose)
 
-            //Room step1
-            implementation(libs.androidx.room.runtime)
-            implementation(libs.androidx.sqlite.bundled) //for sqlite drivers related
+
 
         }
         desktopMain.dependencies {
@@ -128,33 +110,3 @@ compose.desktop {
         }
     }
 }
-
-//Room step3: path where we want to generate the schemas
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
-
-//Room step5  KSP For processing Room annotations , Otherwise we will get Is Room annotation processor correctly configured? error
-dependencies {
-
-    // Update: https://issuetracker.google.com/u/0/issues/342905180
-    listOf(
-        "kspAndroid",
-        "kspDesktop",
-        "kspIosSimulatorArm64",
-        "kspIosX64",
-        "kspIosArm64"
-    ).forEach {
-        add(it, libs.androidx.room.compiler)
-    }
-
-}
-
-//Room step6 part 2 make all source sets to depend on kspCommonMainKotlinMetadata:  Update: https://issuetracker.google.com/u/0/issues/342905180
-//This is not needed now in room 2.7.1
-//tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
-//    if (name != "kspCommonMainKotlinMetadata") {
-//        dependsOn("kspCommonMainKotlinMetadata")
-//    }
-//}
