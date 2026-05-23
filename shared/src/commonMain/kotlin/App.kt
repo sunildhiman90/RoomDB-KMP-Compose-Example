@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -43,11 +45,10 @@ import appDatabase.AppDatabase
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-import kmp_with_roomdb.composeapp.generated.resources.Res
-import kmp_with_roomdb.composeapp.generated.resources.github_logo
+import kmp_with_roomdb.shared.generated.resources.Res
+import kmp_with_roomdb.shared.generated.resources.github_logo
 
 @Composable
-@Preview
 fun App(db: AppDatabase) {
     MaterialTheme {
         val navController = rememberNavController()
@@ -90,6 +91,7 @@ fun ListScreen(
         }
     } else if (state.value.data != null) {
         LazyColumn(
+            modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
